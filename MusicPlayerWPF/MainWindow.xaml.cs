@@ -129,6 +129,8 @@ namespace MusicPlayerWPF
             MusicMediaEl.Stop();
             PlayOrPauseIcon.Kind = PackIconKind.Play;
             isPlaying = false;
+            NextButton_Click(sender, e);
+            PlayButton_Click(sender,e);
         }
 
         private void MusicMediaEl_MediaOpened(object sender, RoutedEventArgs e)
@@ -220,6 +222,9 @@ namespace MusicPlayerWPF
                 SingerNameTxt.Foreground = new SolidColorBrush(Colors.White);
                 MinuteLeft.Foreground = new SolidColorBrush(Colors.White);
                 MinuteSpend.Foreground = new SolidColorBrush(Colors.White);
+                SkipNext.Foreground = new SolidColorBrush(Color.FromRgb(203, 185, 187));
+                SkipPrevious.Foreground = new SolidColorBrush(Color.FromRgb(203, 185, 187));
+
             }
             else 
             {
@@ -227,6 +232,8 @@ namespace MusicPlayerWPF
                 SingerNameTxt.Foreground = new SolidColorBrush(Colors.Black);
                 MinuteLeft.Foreground = new SolidColorBrush(Colors.Black);
                 MinuteSpend.Foreground = new SolidColorBrush(Colors.Black);
+                SkipNext.Foreground = new SolidColorBrush(Color.FromRgb(41, 41, 41));
+                SkipPrevious.Foreground = new SolidColorBrush(Color.FromRgb(41, 41, 41));
             }
         }
         private Color GetColor()

@@ -4,8 +4,9 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+	<ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
-
+	
 	<ItemGroup>
 		<PackageReference Include="MaterialDesignThemes" Version="4.6.0" />
 		<PackageReference Include="TagLibSharp" Version="2.3.0" />

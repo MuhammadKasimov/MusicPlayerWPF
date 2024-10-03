@@ -9,9 +9,10 @@
     Title="MainWindow"
     Width="400"
     Height="650"
-    MouseDown="Window_MouseDown"
     AllowsTransparency="True"
     Background="Transparent"
+    MouseDown="Window_MouseDown"
+    ResizeMode="NoResize"
     WindowStyle="None"
     mc:Ignorable="d">
     <Window.Resources>
@@ -23,7 +24,10 @@
             <Setter Property="BorderThickness" Value="0" />
         </Style>
     </Window.Resources>
-    <Border  CornerRadius="20" x:Name="MainBorder" Background="Black">
+    <Border
+        x:Name="MainBorder"
+        Background="Black"
+        CornerRadius="20">
         <Grid>
             <MediaElement
                 x:Name="MusicMediaEl"
@@ -102,6 +106,7 @@
                 Orientation="Horizontal">
                 <Button x:Name="PreviousButton" Click="PreviousButton_Click">
                     <md:PackIcon
+                        Name="SkipPrevious"
                         Width="40"
                         Height="40"
                         Foreground="#cbb9bb"
@@ -123,6 +128,7 @@
                 </Button>
                 <Button x:Name="NextButton" Click="NextButton_Click">
                     <md:PackIcon
+                        Name="SkipNext"
                         Width="40"
                         Height="40"
                         Foreground="#cbb9bb"
