@@ -11,6 +11,7 @@
     Height="650"
     AllowsTransparency="True"
     Background="Transparent"
+    Loaded="Window_Loaded"
     MouseDown="Window_MouseDown"
     ResizeMode="NoResize"
     WindowStyle="None"
@@ -40,8 +41,7 @@
             <Image
                 x:Name="MusicBackgroundImage"
                 HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Source="default.png">
+                VerticalAlignment="Center">
                 <Image.BitmapEffect>
                     <BlurBitmapEffect Radius="30" />
                 </Image.BitmapEffect>
@@ -53,7 +53,7 @@
                 VerticalAlignment="Top"
                 CornerRadius="20">
                 <Border.Background>
-                    <ImageBrush x:Name="MusicMainImage" ImageSource="default.png" />
+                    <ImageBrush x:Name="MusicMainImage" />
                 </Border.Background>
             </Border>
             <TextBlock
@@ -64,14 +64,14 @@
                 FontSize="20"
                 FontWeight="DemiBold"
                 Foreground="White"
-                Text="Song name" />
+                Text="" />
             <TextBlock
                 x:Name="SingerNameTxt"
                 Margin="30,200"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Bottom"
                 Foreground="White"
-                Text="Singer" />
+                Text="" />
             <Slider
                 x:Name="MusicMinutSlider"
                 Margin="30,170"
@@ -104,7 +104,10 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"
                 Orientation="Horizontal">
-                <Button x:Name="PreviousButton" Click="PreviousButton_Click">
+                <Button
+                    x:Name="PreviousButton"
+                    Click="PreviousButton_Click"
+                    IsEnabled="False">
                     <md:PackIcon
                         Name="SkipPrevious"
                         Width="40"
@@ -112,7 +115,10 @@
                         Foreground="#cbb9bb"
                         Kind="SkipPrevious" />
                 </Button>
-                <Button x:Name="PlayButton" Click="PlayButton_Click">
+                <Button
+                    x:Name="PlayButton"
+                    Click="PlayButton_Click"
+                    IsEnabled="False">
                     <Button.Background>
                         <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                             <GradientStop Color="#030303" />
@@ -126,7 +132,10 @@
                         Foreground="#fee8eb"
                         Kind="Play" />
                 </Button>
-                <Button x:Name="NextButton" Click="NextButton_Click">
+                <Button
+                    x:Name="NextButton"
+                    Click="NextButton_Click"
+                    IsEnabled="False">
                     <md:PackIcon
                         Name="SkipNext"
                         Width="40"
@@ -135,6 +144,30 @@
                         Kind="SkipNext" />
                 </Button>
             </StackPanel>
+            <Button
+                x:Name="ChooseFolder"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Click="ChooseFolder_Click">
+                <md:PackIcon
+                    x:Name="FolderIcon"
+                    Width="30"
+                    Height="30"
+                    Foreground="#cbb9bb"
+                    Kind="Folder" />
+            </Button>
+            <Button
+                x:Name="CloseBtn"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Click="CloseBtn_Click">
+                <md:PackIcon
+                    x:Name="CloseThickIcon"
+                    Width="30"
+                    Height="30"
+                    Foreground="#cbb9bb"
+                    Kind="CloseThick" />
+            </Button>
         </Grid>
     </Border>
 </Window>

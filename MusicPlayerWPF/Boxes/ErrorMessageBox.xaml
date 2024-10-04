@@ -1,0 +1,33 @@
+﻿<Window
+    x:Class="MusicPlayerWPF.Boxes.ErrorMessageBox"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:MusicPlayerWPF.Boxes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="ErrorMessageBox"
+    Width="270"
+    Height="30"
+    AllowsTransparency="True"
+    Background="Transparent"
+    ResizeMode="NoResize"
+    WindowStyle="None"
+    mc:Ignorable="d">
+    <Grid>
+        <Border CornerRadius="10">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                    <GradientStop Color="#181818" />
+                    <GradientStop Offset="1" Color="#8b8d8c" />
+                </LinearGradientBrush>
+            </Border.Background>
+        </Border>
+        <TextBlock
+            x:Name="ErrorText"
+            VerticalAlignment="Center"
+            FontSize="16"
+            Foreground="White"
+            Text="Error"
+            TextAlignment="Center" />
+    </Grid>
+</Window>

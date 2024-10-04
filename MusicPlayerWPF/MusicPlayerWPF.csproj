@@ -2,8 +2,9 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+	<UseWindowsForms>true</UseWindowsForms>
 	<ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
 	
@@ -13,8 +14,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Resource Include="default.png">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Resource>
+	  <EmbeddedResource Include="default.png" />
 	</ItemGroup>
 </Project>
