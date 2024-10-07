@@ -199,7 +199,8 @@
                 Height="30"
                 Margin="15"
                 HorizontalAlignment="Center"
-                VerticalAlignment="Top" />
+                VerticalAlignment="Top"
+                NavigationUIVisibility="Hidden" />
         </Grid>
     </Border>
 </Window>
