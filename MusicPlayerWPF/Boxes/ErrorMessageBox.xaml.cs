@@ -1,17 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace MusicPlayerWPF.Boxes
@@ -19,23 +9,14 @@ namespace MusicPlayerWPF.Boxes
     /// <summary>
     /// Interaction logic for ErrorMessageBox.xaml
     /// </summary>
-    public partial class ErrorMessageBox : Window
+    public partial class ErrorMessageBox : UserControl
     {
         private DispatcherTimer timer;
 
-        public ErrorMessageBox(Window parent, string message, int secondsToClose)
+        public ErrorMessageBox(string message, int secondsToClose)
         {
             InitializeComponent();
             ErrorText.Text = message;
-
-            // Set message box position relative to parent window (top center)
-            if (parent != null)
-            {
-                this.Owner = parent; // Set owner for proper Z-ordering
-                this.WindowStartupLocation = WindowStartupLocation.Manual; // Manual positioning
-                this.Left = parent.Left + (parent.Width - this.Width) / 2; // Center horizontally
-                this.Top = parent.Top + 20; // Near the top of the parent window (20px from top)
-            }
 
             // Set up the timer
             timer = new DispatcherTimer();
@@ -50,13 +31,15 @@ namespace MusicPlayerWPF.Boxes
 
             // Fade out animation
             DoubleAnimation fadeOut = new DoubleAnimation(1, 0, new Duration(TimeSpan.FromSeconds(1)));
-            fadeOut.Completed += FadeOut_Completed; // Close window after animation
-            this.BeginAnimation(Window.OpacityProperty, fadeOut);
+            fadeOut.Completed += FadeOut_Completed; // Close after animation
+            this.BeginAnimation(OpacityProperty, fadeOut);
         }
 
         private void FadeOut_Completed(object sender, EventArgs e)
         {
-            this.Close(); // Close the window after fade-out animation completes
+            // Remove the control from the parent
+            var parent = this.Parent as Panel;
+            parent?.Children.Remove(this); // Assuming the control is in a panel
         }
     }
 }

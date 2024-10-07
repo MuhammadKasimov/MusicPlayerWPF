@@ -1,50 +1,107 @@
-﻿using System.IO;
+﻿using MaterialDesignThemes.Wpf;
+using MusicPlayerWPF.Boxes;
 using System;
-using System.Text;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
-using System.Linq;
-using MaterialDesignThemes.Wpf;
-using System.Diagnostics;
-using static System.Net.Mime.MediaTypeNames;
-using System.Drawing;
-using System.Reflection;
-using MusicPlayerWPF.Boxes;
 
 namespace MusicPlayerWPF
 {
 
     public partial class MainWindow : Window
     {
+        #region Fields
         private DispatcherTimer _timer;
         private bool isPlaying = false;
+
         private bool isDraging = false;
         FileInfo lastFile;
         private string directory = "Musics";
         private string[] fileFormats = [".mp3", ".flac", ".mp4", ".wav", ".wma", ".aac"];
+        private string configFile = string.Empty;
+        #endregion
+        
+        #region Ctor
         public MainWindow()
         {
             InitializeComponent();
+            configFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Roaming/MusicPlayerSettings/lastfolder.txt");
         }
-
+        #endregion
+        
+        #region Slider Events
         private void Timer_Tick(object sender, EventArgs e)
         {
             if (!isDraging)
             {
-                MusicMinutSlider.Value = MusicMediaEl.Position.TotalSeconds;
-
+                if (isPlaying)
+                    MusicMediaEl.Play();
                 if (MusicMediaEl.NaturalDuration.HasTimeSpan)
-                {
+                    MusicMinutSlider.Value = MusicMediaEl.Position.TotalSeconds;
                     MinuteSpend.Text = $"{MusicMediaEl.Position.Minutes}:{MusicMediaEl.Position.Seconds}";
-                }
+            }
+            else
+                 MusicMediaEl.Pause();
+        }
+
+        private void MusicMinutSlider_DragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)
+        {
+            isDraging = true;
+        }
+
+        private void MusicMinutSlider_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        {
+            isDraging = false;
+        }
+
+        private void MusicMinutSlider_DragEnter(object sender, DragEventArgs e)
+        {
+            isDraging = true;
+        }
+
+        private void MusicMinutSlider_DragLeave(object sender, DragEventArgs e)
+        {
+            isDraging = false;
+        }
+        private void MusicMinutSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            MusicMediaEl.Position = TimeSpan.FromSeconds(MusicMinutSlider.Value);
+        }
+        #endregion
+
+        #region Load Data
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            _timer = new DispatcherTimer();
+            _timer.Tick += Timer_Tick;
+
+            var folder = configFile.Replace("lastfolder.txt", string.Empty);
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+                File.WriteAllText(configFile, "Musics");
+            }
+            directory = File.ReadAllText(configFile);
+            LoadLastMusic();
+        }
+        private void GetData()
+        {
+            try
+            {
+                LoadMusicInfo();
+                SetComponentsColor();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
             }
         }
 
@@ -58,12 +115,7 @@ namespace MusicPlayerWPF
 
                 if (lastFile != null)
                 {
-                    MusicMediaEl.Source = new Uri(lastFile.FullName, UriKind.RelativeOrAbsolute);
-                    MusicMediaEl.Play();
-                    MusicMediaEl.Pause();
-                    PlayButton.IsEnabled = true;
-                    NextButton.IsEnabled = true;
-                    PreviousButton.IsEnabled = true;
+                    LoadMusicInfo();
                 }
                 else
                 {
@@ -74,12 +126,51 @@ namespace MusicPlayerWPF
                     SingerNameTxt.Text = string.Empty;
 
                     LoadDefaultImage();
+                    MainFrame.Content = new ErrorMessageBox("No music found in this folder", 3);
                 }
             }
             else
             {
                 LoadDefaultImage();
+                MainFrame.Content = new ErrorMessageBox("No music found in this folder", 3);
             }
+            SetComponentsColor();
+        }
+        private void LoadMusicInfo()
+        {
+            var file = TagLib.File.Create(lastFile.FullName);
+
+            // Get song details
+            string songTitle = file.Tag.Title;
+            string artist = file.Tag.FirstPerformer;
+
+            // For images, you'll typically find album art
+            // Here's an example of retrieving the first picture (album art)
+            var pictures = file.Tag.Pictures;
+            byte[] imageData = null;
+            if (pictures.Length >= 1)
+            {
+                imageData = pictures[0].Data.Data;
+            }
+
+            // Displaying the information
+            SongNameTxt.Text = songTitle;
+            SingerNameTxt.Text = artist;
+
+            if (imageData != null)
+            {
+                LoadImage(imageData);
+            }
+            else
+            {
+                LoadDefaultImage();
+            }
+            MusicMediaEl.Source = new Uri(lastFile.FullName, UriKind.RelativeOrAbsolute);
+            MusicMediaEl.Play();
+            MusicMediaEl.Pause();
+            PlayButton.IsEnabled = true;
+            NextButton.IsEnabled = true;
+            PreviousButton.IsEnabled = true;
         }
         private void LoadDefaultImage()
         {
@@ -97,9 +188,51 @@ namespace MusicPlayerWPF
 
             MusicBackgroundImage.Source = bitmap;
             MusicMainImage.ImageSource = bitmap;
-            new ErrorMessageBox(this, "No music found in this folder",3).Show();
+        }
+        private void LoadImage(byte[] imageData)
+        {
+            MemoryStream memory = new MemoryStream(imageData);
+            BitmapImage image = new BitmapImage();
+            image.BeginInit();
+            image.CacheOption = BitmapCacheOption.OnLoad;
+            image.StreamSource = memory;
+            image.EndInit();
+
+            MusicBackgroundImage.Source = image;
+            MusicMainImage.ImageSource = image;
+        }
+        #endregion
+
+        #region Action Handlers
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
         }
 
+        private void CloseBtn_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Application.Current.Shutdown();
+        }
+
+        private void ChooseFolder_Click(object sender, RoutedEventArgs e)
+        {
+            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            {
+                dialog.Description = "Select a folder";
+                dialog.ShowNewFolderButton = true;
+
+                System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+                if (result == System.Windows.Forms.DialogResult.OK)
+                {
+                    string folderPath = dialog.SelectedPath;
+                    directory = folderPath;
+                    File.WriteAllText(configFile, folderPath);
+                    LoadLastMusic();
+                }
+            }
+        }
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             if (isPlaying)
@@ -185,67 +318,14 @@ namespace MusicPlayerWPF
                 MinuteLeft.Text = $"{MusicMediaEl.NaturalDuration.TimeSpan.Minutes}:{MusicMediaEl.NaturalDuration.TimeSpan.Seconds}";
             GetData();
         }
+        #endregion
 
-        private void MusicMinutSlider_DragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)
+        #region Ui Colors Changer
+        private void SetComponentsColor()
         {
-            isDraging = true;
-        }
-
-        private void MusicMinutSlider_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
-        {
-            isDraging = false;
-            MusicMediaEl.Position = new TimeSpan(0, 0, 0, (int)MusicMinutSlider.Value);
-        }
-
-        private void GetData()
-        {
-            try
-            {
-                // Load the file
-                var file = TagLib.File.Create(lastFile.FullName);
-
-                // Get song details
-                string songTitle = file.Tag.Title;
-                string artist = file.Tag.FirstPerformer;
-
-                // For images, you'll typically find album art
-                // Here's an example of retrieving the first picture (album art)
-                var pictures = file.Tag.Pictures;
-                byte[] imageData = null;
-                if (pictures.Length >= 1)
-                {
-                    imageData = pictures[0].Data.Data;
-                }
-
-                // Displaying the information
-                SongNameTxt.Text = songTitle;
-                SingerNameTxt.Text = artist;
-
-                if (imageData != null)
-                {
-                    // Saving the image to a file (optional)
-                    MemoryStream memory = new MemoryStream(imageData);
-                    BitmapImage image = new BitmapImage();
-                    image.BeginInit();
-                    image.CacheOption = BitmapCacheOption.OnLoad;
-                    image.StreamSource = memory;
-                    image.EndInit();
-
-                    MusicBackgroundImage.Source = image;
-                    MusicMainImage.ImageSource = image;
-                }
-                else
-                {
-                    LoadDefaultImage();
-                }
-                var color = GetColor();
-                MainBorder.Background = new SolidColorBrush(color);
-                IsColorBright(color);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-            }
+            var color = GetColor();
+            MainBorder.Background = new SolidColorBrush(color);
+            IsColorBright(color);
         }
         private void IsColorBright(System.Windows.Media.Color c)
         {
@@ -261,7 +341,8 @@ namespace MusicPlayerWPF
                 SkipPrevious.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(203, 185, 187));
                 CloseThickIcon.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(203, 185, 187));
                 FolderIcon.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(203, 185, 187));
-
+                PlayOrPauseIcon.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(203, 185, 187));
+                MusicMinutSlider.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(203, 185, 187));
             }
             else
             {
@@ -273,8 +354,11 @@ namespace MusicPlayerWPF
                 SkipPrevious.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(41, 41, 41));
                 CloseThickIcon.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(41, 41, 41));
                 FolderIcon.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(41, 41, 41));
+                PlayOrPauseIcon.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(41, 41, 41));
+                MusicMinutSlider.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(41, 41, 41));
             }
         }
+
         private System.Windows.Media.Color GetColor()
         {
             // Convert the position to integer values
@@ -308,40 +392,6 @@ namespace MusicPlayerWPF
             }
             return System.Windows.Media.Color.FromRgb(0, 0, 0);
         }
-
-        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-                this.DragMove();
-        }
-
-        private void CloseBtn_Click(object sender, RoutedEventArgs e)
-        {
-            System.Windows.Application.Current.Shutdown();
-        }
-
-        private void ChooseFolder_Click(object sender, RoutedEventArgs e)
-        {
-            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
-            {
-                dialog.Description = "Select a folder";
-                dialog.ShowNewFolderButton = true;
-
-                System.Windows.Forms.DialogResult result = dialog.ShowDialog();
-                if (result == System.Windows.Forms.DialogResult.OK)
-                {
-                    string folderPath = dialog.SelectedPath;
-                    directory = folderPath;
-                    LoadLastMusic();
-                }
-            }
-        }
-
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            _timer = new DispatcherTimer();
-            _timer.Tick += Timer_Tick;
-            LoadLastMusic();
-        }
+        #endregion
     }
 }

@@ -29,6 +29,7 @@
         x:Name="MainBorder"
         Background="Black"
         CornerRadius="20">
+
         <Grid>
             <MediaElement
                 x:Name="MusicMediaEl"
@@ -38,14 +39,27 @@
                 MediaOpened="MusicMediaEl_MediaOpened"
                 Stretch="Fill"
                 UnloadedBehavior="Stop" />
-            <Image
-                x:Name="MusicBackgroundImage"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center">
-                <Image.BitmapEffect>
+
+            <Border>
+                <Border.BitmapEffect>
                     <BlurBitmapEffect Radius="30" />
-                </Image.BitmapEffect>
-            </Image>
+                </Border.BitmapEffect>
+                <Border
+                    Width="390"
+                    Margin="0,20,0,0"
+                    VerticalAlignment="Top"
+                    ClipToBounds="True"
+                    CornerRadius="20">
+                    <Image
+                        x:Name="MusicBackgroundImage"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Top">
+                        <Image.BitmapEffect>
+                            <BlurBitmapEffect Radius="30" />
+                        </Image.BitmapEffect>
+                    </Image>
+                </Border>
+            </Border>
             <Border
                 Width="250"
                 Height="250"
@@ -75,15 +89,17 @@
             <Slider
                 x:Name="MusicMinutSlider"
                 Margin="30,170"
+                Padding="0"
                 VerticalAlignment="Bottom"
+                DragEnter="MusicMinutSlider_DragEnter"
+                DragLeave="MusicMinutSlider_DragLeave"
                 Thumb.DragCompleted="MusicMinutSlider_DragCompleted"
-                Thumb.DragStarted="MusicMinutSlider_DragStarted">
-                <Slider.Foreground>
-                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                        <GradientStop Color="#1b1b1b" />
-                        <GradientStop Offset="1" Color="#5d5d5d" />
-                    </LinearGradientBrush>
-                </Slider.Foreground>
+                Thumb.DragStarted="MusicMinutSlider_DragStarted"
+                ValueChanged="MusicMinutSlider_ValueChanged"
+                Value="{Binding ElementName=MusicMediaEl.Position, Path=MusicMediaEl.Position.TotalSeconds}">
+                <Slider.Effect>
+                    <BlurEffect Radius="2" />
+                </Slider.Effect>
             </Slider>
             <TextBlock
                 x:Name="MinuteSpend"
@@ -114,23 +130,23 @@
                         Height="40"
                         Foreground="#cbb9bb"
                         Kind="SkipPrevious" />
+                    <Button.Effect>
+                        <BlurEffect Radius="2" />
+                    </Button.Effect>
                 </Button>
                 <Button
                     x:Name="PlayButton"
                     Click="PlayButton_Click"
                     IsEnabled="False">
-                    <Button.Background>
-                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                            <GradientStop Color="#030303" />
-                            <GradientStop Offset="1" Color="#6b6d6c" />
-                        </LinearGradientBrush>
-                    </Button.Background>
                     <md:PackIcon
                         x:Name="PlayOrPauseIcon"
                         Width="40"
                         Height="40"
                         Foreground="#fee8eb"
                         Kind="Play" />
+                    <Button.Effect>
+                        <BlurEffect Radius="2" />
+                    </Button.Effect>
                 </Button>
                 <Button
                     x:Name="NextButton"
@@ -142,6 +158,9 @@
                         Height="40"
                         Foreground="#cbb9bb"
                         Kind="SkipNext" />
+                    <Button.Effect>
+                        <BlurEffect Radius="2" />
+                    </Button.Effect>
                 </Button>
             </StackPanel>
             <Button
@@ -155,6 +174,9 @@
                     Height="30"
                     Foreground="#cbb9bb"
                     Kind="Folder" />
+                <Button.Effect>
+                    <BlurEffect Radius="2" />
+                </Button.Effect>
             </Button>
             <Button
                 x:Name="CloseBtn"
@@ -167,7 +189,17 @@
                     Height="30"
                     Foreground="#cbb9bb"
                     Kind="CloseThick" />
+                <Button.Effect>
+                    <BlurEffect Radius="2" />
+                </Button.Effect>
             </Button>
+            <Frame
+                x:Name="MainFrame"
+                Width="270"
+                Height="30"
+                Margin="15"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top" />
         </Grid>
     </Border>
 </Window>
